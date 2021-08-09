@@ -9,7 +9,7 @@
 #define FROM_RIGHT 1
 #define FROM_LEFT 2
 #define FROM_TOP 3
-#define FROM_BOTTOM	4 
+#define FROM_BOTTOM 4
 int game = 0;
 int p = 0;
 int a, b, c, d;
@@ -336,10 +336,10 @@ void Render2(void)
 	drawText("right arrow : increase ball size", 20, 340);
 	drawText("mouse : pad movements", 20, 400);
 	glColor3f(1, 0, 0);
-	drawText("\"touching the ball to the corner of pad will fetch more points\"",80, 440);
+	drawText("\"touching the ball to the corner of pad will fetch more points\"", 80, 440);
 	glColor3f(0, 1, 1);
-drawText("P R E S S N T O G O B A C K",200,500);
-glutSwapBuffers();
+	drawText("P R E S S N T O G O B A C K", 200, 500);
+	glutSwapBuffers();
 }
 //menus options
 void menu(int num)
@@ -429,25 +429,20 @@ void frontscreen(void)
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glColor3f(0, 0, 1);
-	drawText("JSS ACADEMY OF TECHNICAL EDUCATION, Bengaluru", 180, 30);
+	drawText("Bangalore Institute of Technology, Bengaluru", 180, 30);
 	drawText("DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING", 150, 70);
 	glColor3f(0, 1, 0);
 	drawText("A Mini Project On:", 380, 150);
 	drawText("\"2D-GAME\"", 400, 180);
 	drawText("\"USING OPENGL\"", 370, 210);
 	glColor3f(1, 0, 1);
-	drawText("Umang Agarwal", 10, 270);
-	drawText("1js10cs087", 10, 300);
+	drawText("Shreyash kumar pandey", 10, 270);
+	drawText("1BI18CS144", 10, 300);
 	drawText("computer science and engineering", 10, 330);
-	drawText("Swathi Phatak", 600, 270);
-	drawText("1js10cs083", 600, 300);
+	drawText("Niraj Sriramula", 600, 270);
+	drawText("1BI18CS157", 600, 300);
 	drawText("computer science and engineering", 600, 330);
-	glColor3f(0, 1, 1);
-	drawText("UNDER THE GUIDANCE OF:", 320, 380);
-	drawText("1.Sharana Basavana Gowda(B.E.)", 10, 430);
-	drawText("Professor,Dept.of CSE", 10, 460);
-	drawText("2.Savitha S(B.E.)", 10, 490);
-	drawText("Professor,Dept. of CSE", 10, 520);
+
 	glColor3f(1, 1, 1);
 	drawText("PRESS N TO GO TO NEXT SCREEN", 285, 550);
 	glColor3f(0, 0, 0);
@@ -472,13 +467,13 @@ void choice()
 	glLoadIdentity();
 	glColor3f(0, 1, 0);
 	drawText("PLAYING AGAINST COMPUTER", 200, 150);
-drawText("P R E S S C",200,180);
-glColor3f(0,0,1);
-drawText("PLAYING ALONE",200,300);
-drawText("P R E S S A",200,330);
-glColor3f(1,1,1);
-drawText("PRESS E TO EXIT ",200,430);
-glutSwapBuffers();
+	drawText("P R E S S C", 200, 180);
+	glColor3f(0, 0, 1);
+	drawText("PLAYING ALONE", 200, 300);
+	drawText("P R E S S A", 200, 330);
+	glColor3f(1, 1, 1);
+	drawText("PRESS E TO EXIT ", 200, 430);
+	glutSwapBuffers();
 }
 //start screen
 void startscreen()
@@ -505,16 +500,16 @@ void winscreen()
 	glColor3f(0, 1, 0);
 	drawText("!!! C O N G R A T S !!!", 270, 60);
 	glColor3f(1, 0.5, 0);
-drawText("POINTS ARE",290,200);
-sprintf(string,"PC : %d",pcResult);
-drawText(string,100,300);
-sprintf(string,"PLAYER : %d",playerResult);
-drawText(string,600,300);
-glColor3f(1,1,0);
-drawText("***PRESS \"n\" TO GO TO MAIN MENU***",180,420);
-drawText("***PRESS \"1\" TO RESTART THE GAME***",170,460);
-drawText("***PRESS \"e\" TO EXIT FROM THE GAME***",160,500);
-glutSwapBuffers();
+	drawText("POINTS ARE", 290, 200);
+	sprintf(string, "PC : %d", pcResult);
+	drawText(string, 100, 300);
+	sprintf(string, "PLAYER : %d", playerResult);
+	drawText(string, 600, 300);
+	glColor3f(1, 1, 0);
+	drawText("***PRESS \"n\" TO GO TO MAIN MENU***", 180, 420);
+	drawText("***PRESS \"1\" TO RESTART THE GAME***", 170, 460);
+	drawText("***PRESS \"e\" TO EXIT FROM THE GAME***", 160, 500);
+	glutSwapBuffers();
 }
 int pause11()
 {
