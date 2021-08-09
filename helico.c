@@ -1,255 +1,635 @@
-///code to animate a 2D helicopter game
-
-#include <stdlib.h>
 #include <GL/glut.h>
-#include <time.h>
-//#include<dos.h>
-#include <string.h>
 #include <stdio.h>
-//#include<iostream.h>
-//#include<windows.h>
-int win1, win2;
-void Write(float x, float y, float z, float scale, char *s)
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <string.h>
+#define bool int
+#define true 1
+#define false 0
+#define FROM_RIGHT 1
+#define FROM_LEFT 2
+#define FROM_TOP 3
+#define FROM_BOTTOM	4 
+int game = 0;
+int p = 0;
+int a, b, c, d;
+static mouse_x = 0;
+static int value = 0;
+static int submenu_id;
+static int bmenu_id;
+static int menu_id;
+static int nu_id;
+static int id;
+static int window;
+double r1 = 1, g1 = 1, b1 = 1, r2 = 1, g2 = 1, b2 = 1.0;
+static int z = 0;
+static int WINDOW_WIDTH, WINDOW_HEIGHT;
+int playerResult = 0;
+int pcResult = 0;
+static float Xspeed = 1, Yspeed = 1;
+//for moving ball
+static float delta = 1;
+//ball movements in steps
+char string[100];
+static int sizeb = 0;
+//structure for drawing ball and bat
+typedef struct RECTA
 {
-	int i, l = strlen(s);
-	glPushMatrix();
-	glTranslatef(x, y, z);
-	glScalef(scale, scale, scale);
-	for (i = 0; i < l; i++)
-		glutStrokeCharacter(GLUT_STROKE_ROMAN, s[i]);
-	glPopMatrix();
+	float left, top, right, bottom;
+} RECTA;
+RECTA ball = {10, 10, 20, 20};
+RECTA wall;
+RECTA player_1 = {100, 490, 40, 500};
+//increase ball size
+void incsize(RECTA rect)
+{
+	ball.right += 10;
+	ball.bottom += 10;
 }
-
-void frontsheet(void)
+//decrease ball size
+void decsize(RECTA rect)
 {
-	glClearColor(0, 0, 0, 1);
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(1.0, 1.0, 0.0);
-	Write(-0.50, 0.9, 1, 0.0007, (char *)"SJB Institute Of Technology");
-	Write(-0.55, 0.8, 1, 0.0006, (char *)"    Department of CSE");
-	glColor3f(1.0, 0.0, 0.0);
-	Write(-0.45, 0.6, 0.0, 0.0007, (char *)" 2D Helicopter Game");
-	glColor3f(1.0, 1.0, 0.5);
-	Write(-0.4, -0.8, 0.0, 0.0006, (char *)"Press 'C' to continue");
-	glColor3f(1, 1, 0.0);
-	Write(-1.0, 0.1, 0.0, 0.0007, (char *)" Submitted BY:");
-	glColor3f(1.0, 1.0, 1.0);
-	Write(-1.0, -0.03, 0.0, 0.0006, (char *)"1. Shubham Kumar: 1JB16CS154");
-	Write(-1.0, -0.13, 0.0, 0.0006, (char *)"2. Shubham Kumar: 1JB16CS155");
-	glColor3f(1, 1, 0.0);
-	Write(-1.0, -0.4, 0.0, 0.0007, (char *)" Under the guidance of: ");
-	glColor3f(1.0, 1.0, 1.0);
-	Write(0.15, -0.415, 0.0, 0.0006, (char *)" 1.Mrs Bindiya M K");
-	Write(0.15, -0.515, 0.0, 0.0006, (char *)" 2.Mrs Roopa M J");
-	glFlush();
-}
-
-float bspd = 0.02; // block dx value
-
-//char name[25];
-
-float b1x = 50.0, b1y = 0; //block 1 init position
-
-float hm = 0.0; //copter moving dy value
-
-int i = 0, sci = 1;
-float scf = 1; // for increment score score_int score_flag
-
-char scs[20], slevel[20];
-//to store score_string using itoa() and level as well
-int level = 1, lflag = 1, wflag = 1; //level_flag & welcome_flag init w/1
-void init(void)
-{
-	srand(time(0));			  //it generates a random no each time code is executed
-	b1y = (rand() % 45) + 10; //b/w 10 to 44
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glShadeModel(GL_SMOOTH);
-	glLoadIdentity();
-	glOrtho(0.0, 100.0, 0.0, 100.0, -1.0, .0);
-}
-
-void drawcopter()
-{
-	glColor3f(0.5, 1.0, 0.3);
-	glRectf(10, 49.8, 19.8, 44.8); //body
-	glRectf(2, 46, 10, 48);		   //tail
-	glRectf(2, 46, 4, 51);		   //tail up
-	glRectf(14, 49.8, 15.8, 52.2); //propeller stand
-	glRectf(7, 53.6, 22.8, 52.2);  //propeller*/
-}
-
-void renderBitmapString(float x, float y, float z, void *font, const char *string)
-{
-	const char *c;
-	glRasterPos3f(x, y, z);
-	for (c = string; *c != '\0'; c++)
+	if (ball.left < ball.right)
 	{
-		glutBitmapCharacter(font, *c);
+		ball.left += 10;
+		ball.top += 10;
 	}
 }
-
-void display(void)
+//drawing ball
+void DrawBall(RECTA rect, double r, double g, double b)
 {
-	glClear(GL_COLOR_BUFFER_BIT);
-	//GameOver Checking
-	if ((i == 730 || i == -700)
-		//top and bottom checking
-
-		||
-		(((int)b1x == 10 || (int)b1x == 7 || (int)b1x == 4 || (int)b1x == 1) && (int)b1y < 53 + (int)hm && (int)b1y + 35 > 53 + (int)hm)
-		// propeller front checking
-
-		||
-		(((int)b1x == 9 || (int)b1x == 3 || (int)b1x == 6) && (int)b1y < 45 + (int)hm && (int)b1y + 35 > 45 + (int)hm)
-		//lower body checking
-
-		||
-		(((int)b1x == 0) && (int)b1y < 46 + (int)hm && (int)b1y + 35 > 46 + (int)hm))
-	// lower tail checking
+	glColor3f(r, g, b);
+	glBegin(GL_QUADS);
+	glVertex2f(rect.left, rect.bottom);
+	glVertex2f(rect.right, rect.bottom);
+	glVertex2f(rect.right, rect.top);
+	glVertex2f(rect.left, rect.top);
+	glEnd();
+}
+//drawing bat
+void DrawBat(RECTA rect, double r, double g, double b)
+{
+	glColor3f(r, g, b);
+	glBegin(GL_QUADS);
+	glVertex2f(rect.left, rect.bottom);
+	glVertex2f(rect.right, rect.bottom);
+	glVertex2f(rect.right, rect.top);
+	glVertex2f(rect.left, rect.top);
+	glEnd();
+}
+//timer funtion for moving ball
+void Timer(int v)
+{
+	ball.left += Xspeed;
+	ball.right += Xspeed;
+	ball.top += Yspeed;
+	ball.bottom += Yspeed;
+	glutTimerFunc(1, Timer, 1);
+}
+//drawing text
+void drawText(char *string, int x, int y)
+{
+	int len, i;
+	glRasterPos2f(x, y);
+	len = (int)strlen(string);
+	for (i = 0; i < len; i++)
 	{
-		glColor3f(0.0, 0.0, 1.0);
-		glRectf(0.0, 0.0, 100.0, 100.0);
-		glColor3f(1.0, 0.0, 0.0);
-		renderBitmapString(40, 70, 0, GLUT_BITMAP_HELVETICA_18, "GAME OVER!!!");
-		glColor3f(1.0, 1.0, 1.0);
-		renderBitmapString(30, 58, 0, GLUT_BITMAP_TIMES_ROMAN_24, "THANKS FOR PLAYING THE GAME!!");
-		//renderBitmapString(45, 58, 0, GLUT_BITMAP_TIMES_ROMAN_24, "scored:");
-		renderBitmapString(70, 58, 0, GLUT_BITMAP_TIMES_ROMAN_24, scs);
-		glutSwapBuffers();
-		glFlush();
-		printf("\nGAME OVER\n\n");
-		system("pause");
-		//printf("%s\You scored  %s", name, scs);
-		printf("\n\nClose the console window to exit...\n");
+		glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, string[i]);
+	}
+}
+//test collision between ball and wall
+int Test_Ball_Wall(RECTA ball, RECTA wall)
+{
+	if (ball.right >= wall.right)
+		return FROM_RIGHT;
+	if (ball.left <= wall.left)
+		return FROM_LEFT;
+	if (ball.top <= wall.top)
+		return FROM_TOP;
+	if (ball.bottom >= wall.bottom)
+		return FROM_BOTTOM;
+	else
+		return 0;
+}
+//calculating score
+bool Test_Ball_Player(RECTA ball, RECTA player)
+{
+	if (ball.bottom >= player.top && ball.left >= player.left &&
+		ball.right <= player.right)
+	{
+		playerResult++;
+		return true;
+	}
+	return false;
+}
+//repositioning ball
+void rend(RECTA rect)
+{
+	ball.left = 10;
+	ball.top = 10;
+	ball.right = 20;
+	ball.bottom = 20;
+}
+void rendp(RECTA rect)
+{
+	a = ball.left;
+	b = ball.top;
+	c = ball.right;
+	d = ball.bottom;
+}
+void rendr(RECTA rect)
+{
+	ball.left = a;
+	ball.top = b;
+	ball.right = c;
+	ball.bottom = d;
+}
+//key Board Messages
+void keyboard(unsigned char key, int x, int y)
+{
+	switch (key)
+	{
+	case 'e':
 		exit(0);
-		//getch();
+		break;
+	case 'n' | 'N':
+		startscreenn();
+		break;
+	case '1':
+		choice1();
+		break;
+	case '2':
+		renderr2();
+		break;
+	case '3':
+		exit(0);
+		break;
+	case '4':
+		winscreenn();
+		break;
+	case 'p':
+		rendp(ball);
+		pause11();
+		break;
+	case 'r':
+		rendr(ball);
+		renderr1();
+		break;
+	case 'c':
+		rend(ball);
+		delta = 1;
+		pcResult = 0;
+		playerResult = 0;
+		game = 0;
+		renderr1();
+		break;
+	case 'a':
+		rend(ball);
+		delta = 1;
+		pcResult = 0;
+		playerResult = 0;
+		game = 1;
+		renderr1();
+		break;
 	}
-
+}
+//key Board Message
+void inputKey(int key, int x, int y)
+{
+	switch (key)
+	{
+	case GLUT_KEY_LEFT:
+		decsize(ball);
+		break;
+	case GLUT_KEY_RIGHT:
+		incsize(ball);
+		break;
+	case GLUT_KEY_UP:
+		delta++;
+		break;
+	case GLUT_KEY_DOWN:
+		if (delta > 1)
+			delta--;
+		break;
+	}
+}
+//moving bat on x-axis
+void MouseMotion(int x, int y)
+{
+	mouse_x = x;
+}
+//openGL Setting
+void Setting(double r, double g, double b, double alpha)
+{
+	glClearColor(r, g, b, alpha);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+}
+//windowResize
+void reshape(int w, int h)
+{
+	WINDOW_WIDTH = w;
+	WINDOW_HEIGHT = h;
+	glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	gluOrtho2D(0, w, h, 0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+}
+//putting all things together
+void Renderc(void)
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor3f(1, 1, 1);
+	sprintf(string, "PC : %d ", pcResult);
+	drawText(string, 10, 40);
+	sprintf(string, "Player : %d ", playerResult);
+	drawText(string, 10, 60);
+	drawText("PRESS '4' TO EXIT", 10, 80);
+	drawText("PRESS 'P' TO PAUSE", 10, 100);
+	wall.left = wall.top = 0;
+	wall.right = WINDOW_WIDTH;
+	wall.bottom = WINDOW_HEIGHT;
+	DrawBall(ball, r1, g1, b1);
+	if (Test_Ball_Wall(ball, wall) == FROM_RIGHT)
+		Xspeed = -delta;
+	if (Test_Ball_Wall(ball, wall) == FROM_LEFT)
+		Xspeed = delta;
+	if (Test_Ball_Wall(ball, wall) == FROM_TOP)
+		Yspeed = delta;
+	if (Test_Ball_Wall(ball, wall) == FROM_BOTTOM)
+	{
+		Yspeed = -delta;
+		pcResult += 1;
+	}
+	DrawBat(player_1, r2, g2, b2);
+	player_1.left = mouse_x - 20;
+	player_1.right = mouse_x + 40;
+	if (Test_Ball_Player(ball, player_1) == true)
+		Yspeed = -delta;
+	glutSwapBuffers();
+	if (p == 0)
+	{
+		sleep(1);
+		p++;
+	}
+}
+void Rendera(void)
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor3f(1, 1, 1);
+	sprintf(string, "PC : %d ", pcResult);
+	drawText(string, 10, 40);
+	sprintf(string, "Player : %d ", playerResult);
+	drawText(string, 10, 60);
+	drawText("PRESS '4' TO EXIT", 10, 80);
+	drawText("PRESS 'P' TO PAUSE", 10, 100);
+	wall.left = wall.top = 0;
+	wall.right = WINDOW_WIDTH;
+	wall.bottom = WINDOW_HEIGHT;
+	DrawBall(ball, r1, g1, b1);
+	if (Test_Ball_Wall(ball, wall) == FROM_RIGHT)
+		Xspeed = -delta;
+	if (Test_Ball_Wall(ball, wall) == FROM_LEFT)
+		Xspeed = delta;
+	if (Test_Ball_Wall(ball, wall) == FROM_TOP)
+		Yspeed = delta;
+	if (Test_Ball_Wall(ball, wall) == FROM_BOTTOM)
+	{
+		winscreenn();
+	}
+	DrawBat(player_1, r2, g2, b2);
+	player_1.left = mouse_x - 20;
+	player_1.right = mouse_x + 40;
+	if (Test_Ball_Player(ball, player_1) == true)
+		Yspeed = -delta;
+	glutSwapBuffers();
+	if (p == 0)
+	{
+		sleep(1);
+		p++;
+	}
+}
+void disp()
+{
+	if (game == 0)
+		Renderc();
+	else if (game == 1)
+		Rendera();
+}
+//instructions
+void Render2(void)
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor3f(0, 1, 0);
+	drawText("e : exit", 20, 40);
+	drawText("right click : options", 20, 100);
+	drawText("up arrow : increase ball speed", 20, 160);
+	drawText("down arrow : decrease ball speed", 20, 220);
+	drawText("left arrow : decrease ball size", 20, 280);
+	drawText("right arrow : increase ball size", 20, 340);
+	drawText("mouse : pad movements", 20, 400);
+	glColor3f(1, 0, 0);
+	drawText("\"touching the ball to the corner of pad will fetch more points\"",80, 440);
+	glColor3f(0, 1, 1);
+drawText("P R E S S N T O G O B A C K",200,500);
+glutSwapBuffers();
+}
+//menus options
+void menu(int num)
+{
+	if (num == 0)
+	{
+		glutDestroyWindow(window);
+		exit(0);
+	}
 	else
 	{
-		//on every increase by 50 in score in each level
-		if (sci % 50 == 0 && lflag == 1)
+		switch (num)
 		{
-			lflag = 0;	  //make level_flag=0
-			level++;	  //increase level by 1
-			bspd += 0.01; //increase block_dx_speed by 0.01
+		case 1:
+			r2 = 1.0, g2 = 1.0, b2 = 1.0;
+			break;
+		case 2:
+			r2 = 1.0, g2 = 1.0, b2 = 0.0;
+			break;
+		case 3:
+			r2 = 0.0, g2 = 1.0, b2 = 1.0;
+			break;
+		case 4:
+			r2 = 0.5, g2 = 1.0, b2 = 0.5;
+			break;
+		case 5:
+			r1 = 1.0, g1 = 1.0, b1 = 1.0;
+			break;
+		case 6:
+			r1 = 1.0, g1 = 1.0, b1 = 0.0;
+			break;
+		case 7:
+			r1 = 0.0, g1 = 1.0, b1 = 1.0;
+			break;
+		case 8:
+			r1 = 0.5, g1 = 1.0, b1 = 0.5;
+			break;
+		case 9:
+			Setting(0, 0, 1, 0.5);
+			break;
+		case 10:
+			Setting(1, 0.5, 0, 0);
+			break;
+		case 11:
+			Setting(0.5, 0, 1, 0);
+			break;
+		case 12:
+			Setting(0.0, 0, 0.0, 0);
+			break;
 		}
-		//within every level make level_flag=1
-		else if (sci % 50 != 0 && lflag != 1)
-		{
-			lflag = 1;
-		}
-		glPushMatrix();
-		glColor3f(0.0, 0.5, 0.7);
-		glRectf(0.0, 0.0, 100.0, 10.0);	  //ceil
-		glRectf(0.0, 100.0, 100.0, 90.0); //floor
-
-		glColor3f(0.0, 0.0, 0.0); //score
-								  //	renderBitmapString(1, 3, 0, GLUT_BITMAP_TIMES_ROMAN_24, "Distance:");
-		//glColor3f(0.7,0.7,0.7);
-
-		printf(slevel, "%d", level); //level
-									 //	renderBitmapString(80, 3, 0, GLUT_BITMAP_TIMES_ROMAN_24, "Level:");
-		renderBitmapString(93, 3, 0, GLUT_BITMAP_TIMES_ROMAN_24, slevel);
-
-		scf += 0.025; //so less as program run very fast
-		sci = (int)scf;
-		printf(scs, "%d", sci);
-		//from int to char convertion to display score
-		renderBitmapString(20, 3, 0, GLUT_BITMAP_TIMES_ROMAN_24, scs);
-		glTranslatef(0.0, hm, 0.0);
-		// hm(=dy) changes occur by mouse func
-		drawcopter();
-		//code for helicopter
-		//if wall move towards left & get out of projection volume
-		if (b1x < -10)
-		{
-			b1x = 50; //total width is 50
-			b1y = (rand() % 25) + 20;
-			//10 for selling+10 for giving enough space
-			// block bottom limit 0+20 & top limit 24+20=44
-		}
-
-		else
-			b1x -= bspd;
-		//within the projection volume dec its x value by block_speed
-
-		glTranslatef(b1x, -hm, 0.0);
-
-		glColor3f(1.0, 0.0, 0.0);
-		glRectf(b1x, b1y, b1x + 5, b1y + 35); //block 1
-
-		glPopMatrix();
-
-		glutSwapBuffers();
-		glFlush();
 	}
-}
-
-void moveHeliU(void)
-{
-
-	hm += 0.05;
-	i++;
 	glutPostRedisplay();
 }
-
-void moveHeliD()
+//creating menus
+void createMenu(void)
 {
-
-	hm -= 0.05;
-	i--;
-	glutPostRedisplay();
+	//sub menu entry
+	submenu_id = glutCreateMenu(menu);
+	glutAddMenuEntry("White", 1);
+	glutAddMenuEntry("Yellow", 2);
+	glutAddMenuEntry("Cyan", 3);
+	glutAddMenuEntry("Green", 4);
+	//submenu entry
+	bmenu_id = glutCreateMenu(menu);
+	glutAddMenuEntry("White", 5);
+	glutAddMenuEntry("Yellow", 6);
+	glutAddMenuEntry("Cyan", 7);
+	glutAddMenuEntry("Green", 8);
+	//sub menu entry
+	menu_id = glutCreateMenu(menu);
+	glutAddMenuEntry("Blue", 9);
+	glutAddMenuEntry("Orange", 10);
+	glutAddMenuEntry("Purple", 11);
+	glutAddMenuEntry("Black", 12);
+	//main menu
+	nu_id = glutCreateMenu(menu);
+	glutAddSubMenu("BAT COLOR", submenu_id);
+	glutAddSubMenu("BALL COLOR", bmenu_id);
+	glutAddSubMenu("BACKGROUND", menu_id);
+	glutAddMenuEntry("exit", 0);
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
 }
-void mouse(int button, int state, int x, int y)
+//front screen
+void frontscreen(void)
 {
-	switch (button)
-	{
-	case GLUT_LEFT_BUTTON:
-
-		if (state == GLUT_DOWN)
-			glutIdleFunc(moveHeliU);
-
-		else if (state == GLUT_UP)
-			glutIdleFunc(moveHeliD);
-		break;
-	default:
-		break;
-	}
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor3f(0, 0, 1);
+	drawText("JSS ACADEMY OF TECHNICAL EDUCATION, Bengaluru", 180, 30);
+	drawText("DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING", 150, 70);
+	glColor3f(0, 1, 0);
+	drawText("A Mini Project On:", 380, 150);
+	drawText("\"2D-GAME\"", 400, 180);
+	drawText("\"USING OPENGL\"", 370, 210);
+	glColor3f(1, 0, 1);
+	drawText("Umang Agarwal", 10, 270);
+	drawText("1js10cs087", 10, 300);
+	drawText("computer science and engineering", 10, 330);
+	drawText("Swathi Phatak", 600, 270);
+	drawText("1js10cs083", 600, 300);
+	drawText("computer science and engineering", 600, 330);
+	glColor3f(0, 1, 1);
+	drawText("UNDER THE GUIDANCE OF:", 320, 380);
+	drawText("1.Sharana Basavana Gowda(B.E.)", 10, 430);
+	drawText("Professor,Dept.of CSE", 10, 460);
+	drawText("2.Savitha S(B.E.)", 10, 490);
+	drawText("Professor,Dept. of CSE", 10, 520);
+	glColor3f(1, 1, 1);
+	drawText("PRESS N TO GO TO NEXT SCREEN", 285, 550);
+	glColor3f(0, 0, 0);
+	glutSwapBuffers();
 }
-void keys(unsigned char key, int x, int y)
+void pause1()
 {
-	if (key == 'w')
-		glutIdleFunc(moveHeliU);
-	if (key == 'm')
-		glutIdleFunc(moveHeliD);
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor3f(1, 1, 0);
+	drawText("PAUSE", 200, 150);
+	//glColor3f(0,1,0);
+	drawText("PRESS R TO RESUME", 140, 300);
+	glColor3f(0, 0, 0);
+	glutSwapBuffers();
 }
-void keyboards(unsigned char key, int x4, int y4)
+void choice()
 {
-	if (key == 'c' || key == 'C')
-	{
-		glutDestroyWindow(win1);
-		glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB | GLUT_DEPTH);
-		win2 = glutCreateWindow("2D Helicopter Game");
-		glClearColor(0.0, 0.0, 0.0, 0.0);
-		glFlush();
-		glutDisplayFunc(display);
-		gluOrtho2D(-1000, 1000, 0, 1000);
-		init();
-		glutMouseFunc(mouse);
-		glutKeyboardFunc(keys);
-	}
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor3f(0, 1, 0);
+	drawText("PLAYING AGAINST COMPUTER", 200, 150);
+drawText("P R E S S C",200,180);
+glColor3f(0,0,1);
+drawText("PLAYING ALONE",200,300);
+drawText("P R E S S A",200,330);
+glColor3f(1,1,1);
+drawText("PRESS E TO EXIT ",200,430);
+glutSwapBuffers();
 }
+//start screen
+void startscreen()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor3f(1, 1, 1);
+	drawText("WELCOME TO 2D GAME", 250, 150);
+	glColor3f(0, 1, 0);
+	drawText("1.NEW GAME", 250, 200);
+	glColor3f(1, 1, 0);
+	drawText("2.INSTRUCTIONS", 250, 250);
+	glColor3f(1, 0.5, 0);
+	drawText("3.QUIT", 250, 300);
+	glColor3f(0, 0, 0);
+	glutSwapBuffers();
+} //last screen
+void winscreen()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glColor3f(0, 1, 0);
+	drawText("!!! C O N G R A T S !!!", 270, 60);
+	glColor3f(1, 0.5, 0);
+drawText("POINTS ARE",290,200);
+sprintf(string,"PC : %d",pcResult);
+drawText(string,100,300);
+sprintf(string,"PLAYER : %d",playerResult);
+drawText(string,600,300);
+glColor3f(1,1,0);
+drawText("***PRESS \"n\" TO GO TO MAIN MENU***",180,420);
+drawText("***PRESS \"1\" TO RESTART THE GAME***",170,460);
+drawText("***PRESS \"e\" TO EXIT FROM THE GAME***",160,500);
+glutSwapBuffers();
+}
+int pause11()
+{
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(600, 500);
+	glutInitWindowPosition(250, 70);
+	window = glutCreateWindow("PAUSE");
+	glutDisplayFunc(pause1);
+	glutIdleFunc(pause1);
+	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
+	Setting(0, 0, 0, 0);
+	glutSpecialFunc(inputKey);
+	glutMainLoop();
+	return 0;
+}
+int choice1()
+{
+	glutDestroyWindow(window);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(800, 600);
+	glutInitWindowPosition(250, 70);
+	window = glutCreateWindow("CHOICE");
+	glutDisplayFunc(choice);
+	glutIdleFunc(choice);
+	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
+	Setting(0, 0, 0, 0);
+	glutSpecialFunc(inputKey);
+	glutMainLoop();
+	return 0;
+}
+//showing instructions
+int renderr2()
+{
+	glutDestroyWindow(window);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(800, 600);
+	glutInitWindowPosition(250, 70);
+	window = glutCreateWindow("INSTRUCTIONS");
+	glutDisplayFunc(Render2);
+	glutIdleFunc(Render2);
+	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
+	Setting(0, 0, 0, 0);
+	glutSpecialFunc(inputKey);
+	glutMainLoop();
+	return 0;
+}
+//showing start screen
+int startscreenn()
+{
+	glutDestroyWindow(window);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(800, 600);
+	glutInitWindowPosition(250, 70);
+	window = glutCreateWindow("START");
+	glutDisplayFunc(startscreen);
+	glutIdleFunc(startscreen);
+	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
+	Setting(0, 0, 0, 0);
+	glutSpecialFunc(inputKey);
+	glutMainLoop();
+	return 0;
+}
+//game
+int renderr1()
+{
+	glutDestroyWindow(window);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(600, 500);
+	glutInitWindowPosition(250, 70);
+	window = glutCreateWindow("GAME");
+	glutDisplayFunc(disp);
+	glutIdleFunc(disp);
+	glutTimerFunc(1, Timer, 1);
+	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
+	glutPassiveMotionFunc(MouseMotion);
+	Setting(0, 0, 0, 0);
+	createMenu();
+	glutSpecialFunc(inputKey);
+	glutMainLoop();
+	return 0;
+}
+//showing last screen
+int winscreenn()
+{
+	glutDestroyWindow(window);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(800, 600);
+	glutInitWindowPosition(250, 70);
+	window = glutCreateWindow("RESULT");
+	glutDisplayFunc(winscreen);
+	glutIdleFunc(winscreen);
+	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
+	Setting(0, 0, 0, 0);
+	glutMainLoop();
+	return 0;
+}
+//showing welcome screen
 int main(int argc, char **argv)
 {
 	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-	glutInitWindowSize(800, 600);
-	glutInitWindowPosition(200, 200);
-	win1 = glutCreateWindow("Mini Project");
-	glFlush();
-	glutDisplayFunc(frontsheet);
-	glutKeyboardFunc(keyboards);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+	glutInitWindowSize(1000, 600);
+	glutInitWindowPosition(150, 70);
+	window = glutCreateWindow("WELCOME");
+	glutDisplayFunc(frontscreen);
+	glutIdleFunc(frontscreen);
+	glutReshapeFunc(reshape);
+	glutKeyboardFunc(keyboard);
+	Setting(0, 0, 0, 0);
 	glutMainLoop();
 	return 0;
 }
